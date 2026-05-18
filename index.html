@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Off Days</title>
+		<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="./css/styles.css" />
+	</head>
+	<body data-bs-theme="dark">
+		<div class="container-xl px-3 px-lg-4 dashboard-shell">
+			<section class="hero-panel mb-4">
+				<div class="eyebrow text-uppercase fw-semibold mb-3">OFF DAYS</div>
+				<h1 class="page-title fw-bold mb-3">Time Off Dashboard</h1>
+				<p class="page-subtitle mb-0">Review balances, accruals, and time off history in one place.</p>
+			</section>
+
+			<!-- Filters -->
+			<div class="glass-panel rounded-5 p-4 mb-4 filter-bar">
+				<div class="d-flex flex-column flex-lg-row gap-2 justify-content-between mb-3">
+					<div>
+						<div class="eyebrow text-uppercase fw-semibold mb-2">CONTROLS</div>
+						<div class="h5 section-title fw-bold mb-1">Filter Records</div>
+						<p class="surface-copy small mb-0">Narrow the dashboard by month and year without changing any underlying calculations.</p>
+					</div>
+				</div>
+				<div class="row g-3 align-items-end">
+					<div class="col-12 col-sm-6 col-lg-3">
+						<label class="form-label fw-semibold filter-label">Month</label>
+						<select id="filterMonth" class="form-select bg-dark-subtle border-secondary-subtle text-light">
+							<option value="">All Months</option>
+							<option value="1">January</option>
+							<option value="2">February</option>
+							<option value="3">March</option>
+							<option value="4">April</option>
+							<option value="5">May</option>
+							<option value="6">June</option>
+							<option value="7">July</option>
+							<option value="8">August</option>
+							<option value="9">September</option>
+							<option value="10">October</option>
+							<option value="11">November</option>
+							<option value="12">December</option>
+						</select>
+					</div>
+					<div class="col-12 col-sm-6 col-lg-3">
+						<label class="form-label fw-semibold filter-label">Year</label>
+						<select id="filterYear" class="form-select bg-dark-subtle border-secondary-subtle text-light">
+							<option value="">All Years</option>
+						</select>
+					</div>
+					<div class="col-12 col-lg-3 ms-auto">
+						<button class="btn w-100 w-lg-auto filter-button" onclick="clearFilters()">Clear Filters</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Summary -->
+			<div class="row mb-4 g-3">
+				<div class="col-12 col-sm-6 col-xl">
+					<div class="summary-card summary-card--blue rounded-5 p-4 text-white">
+						<div class="text-uppercase small opacity-75">Used (Filtered)</div>
+						<div class="display-4" id="totalWorkdays">0</div>
+						<div class="small opacity-75" id="recordCount">0 records</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-xl">
+					<div class="summary-card summary-card--teal rounded-5 p-4 text-white">
+						<div class="text-uppercase small opacity-75">Accrued Till Month End</div>
+						<div class="display-4" id="accruedDays">0</div>
+						<div class="small opacity-75" id="accruedInfo"></div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-xl">
+					<div class="summary-card summary-card--amber rounded-5 p-4 text-white">
+						<div class="text-uppercase small opacity-75">Time Off Manager</div>
+						<div class="display-4" id="remainingTimeOffManager">0</div>
+						<div class="small opacity-75" id="updatedInfo"></div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-xl">
+					<div class="summary-card summary-card--rose rounded-5 p-4 text-white">
+						<div class="text-uppercase small opacity-75">Remaining This Month</div>
+						<div class="display-4" id="remainingToday">0</div>
+						<div class="small opacity-75" id="remainingThisMonthInfo"></div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-xl">
+					<div class="summary-card summary-card--cyan rounded-5 p-4 text-white">
+						<div class="text-uppercase small opacity-75">Remaining This Year</div>
+						<div class="display-4" id="remainingYear">0</div>
+						<div class="small opacity-75" id="yearProjectionInfo"></div>
+					</div>
+				</div>
+			</div>
+
+			<section class="glass-panel rounded-5 p-3 p-lg-4 mb-4">
+				<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 px-2 px-lg-1 pb-3">
+					<div>
+						<div class="eyebrow text-uppercase fw-semibold mb-2">ANALYTICS</div>
+						<h2 class="h5 fw-bold mb-1 section-title">Used vs Accrued</h2>
+						<p class="section-copy mb-0 small">Selected month or full selected year of used days compared with your monthly accrual.</p>
+					</div>
+				</div>
+				<div class="chart-wrap">
+					<canvas id="monthlyChart"></canvas>
+				</div>
+			</section>
+
+			<!-- Table -->
+			<div class="glass-panel rounded-5 p-3 p-lg-4">
+				<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 px-2 px-lg-1 pb-3">
+					<div>
+						<div class="eyebrow text-uppercase fw-semibold mb-2">HISTORY</div>
+						<h2 class="h5 fw-bold mb-1 section-title">Off Days History</h2>
+						<p class="section-copy mb-0 small">Responsive table with live month and year filtering.</p>
+					</div>
+				</div>
+				<div class="table-responsive rounded-4">
+					<table class="table table-dark table-hover align-middle mb-0">
+						<thead>
+							<tr>
+								<th style="min-width: 70px" aria-sort="none">
+									<button class="table-sort" type="button" data-sort-key="id">
+										<span>ID</span>
+										<span class="table-sort-indicator" aria-hidden="true">↕</span>
+									</button>
+								</th>
+								<th style="min-width: 110px" aria-sort="none">
+									<button class="table-sort" type="button" data-sort-key="created">
+										<span>Created</span>
+										<span class="table-sort-indicator" aria-hidden="true">↕</span>
+									</button>
+								</th>
+								<th style="min-width: 120px" aria-sort="none">
+									<button class="table-sort" type="button" data-sort-key="type">
+										<span>Type</span>
+										<span class="table-sort-indicator" aria-hidden="true">↕</span>
+									</button>
+								</th>
+								<th style="min-width: 110px" aria-sort="none">
+									<button class="table-sort" type="button" data-sort-key="startDate">
+										<span>Start Date</span>
+										<span class="table-sort-indicator" aria-hidden="true">↕</span>
+									</button>
+								</th>
+								<th style="min-width: 110px" aria-sort="none">
+									<button class="table-sort" type="button" data-sort-key="endDate">
+										<span>End Date</span>
+										<span class="table-sort-indicator" aria-hidden="true">↕</span>
+									</button>
+								</th>
+								<th style="min-width: 120px" aria-sort="none">
+									<button class="table-sort" type="button" data-sort-key="hours">
+										<span>Workdays</span>
+										<span class="table-sort-indicator" aria-hidden="true">↕</span>
+									</button>
+								</th>
+							</tr>
+						</thead>
+						<tbody class="border-top-0" id="tableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<script src="./js/script.js"></script>
+	</body>
+</html>
