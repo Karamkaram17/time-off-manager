@@ -5,7 +5,7 @@ const tseslint = require('typescript-eslint');
 module.exports = tseslint.config(
 	{
 		ignores: [
-			'dashboard.js',
+			'js/script.js',
 			'eslint.config.js',
 			'node_modules/**',
 			'scripts/dev-server.mjs',
