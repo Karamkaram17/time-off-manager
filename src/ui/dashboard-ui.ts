@@ -131,9 +131,9 @@ export class DashboardUI {
 		this.elements.accruedDays.textContent = accruedBreakdown.totalAccrued.toFixed(2);
 		this.elements.accruedInfo.textContent = `(${String(accruedBreakdown.fullMonths)} x 1.25) + (${String(accruedBreakdown.partialMonths)} x 0.625)`;
 		this.elements.remainingTimeOffManager.textContent = remainingTimeOffManager.toFixed(2);
-		this.elements.updatedInfo.textContent = `Until ${endOfTimeManagerUpdateDateMonth.toLocaleDateString()}`;
+		this.elements.updatedInfo.textContent = `Until ${DateUtils.formatMonthLabel(endOfTimeManagerUpdateDateMonth)}`;
 		this.elements.remainingToday.textContent = remainingToday.toFixed(2);
-		this.elements.remainingThisMonthInfo.innerHTML = `Until ${endOfCurrentMonth.toLocaleDateString()}`;
+		this.elements.remainingThisMonthInfo.innerHTML = `Until ${DateUtils.formatMonthLabel(endOfCurrentMonth)}`;
 		this.elements.remainingYear.textContent = remainingYear.toFixed(2);
 		this.elements.yearProjectionInfo.textContent = `projected ${projectedYear.toFixed(2)} by Dec`;
 	}
