@@ -6,12 +6,13 @@
 		"build": "npm run typecheck && esbuild src/main.ts --bundle --format=iife --platform=browser --target=es2020 --outfile=js/script.js",
 		"start": "vite",
 		"prepare": "husky",
+		"precommit:fix": "lint-staged",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"format": "prettier . --write",
 		"format:check": "prettier . --check",
-		"validate": "npm run lint:fix && npm run format && npm run build"
+		"validate": "npm run lint && npm run format:check && npm run build"
 	},
 	"dependencies": {
 		"chart.js": "^4.4.3"
@@ -23,9 +24,17 @@
 		"eslint": "^9.27.0",
 		"globals": "^16.1.0",
 		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0",
 		"prettier": "^3.5.3",
 		"typescript": "^5.8.3",
 		"typescript-eslint": "^8.32.1",
 		"vite": "^5.4.19"
+	},
+	"lint-staged": {
+		"*.{js,mjs,ts}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.{css,html,json}": "prettier --write"
 	}
 }
