@@ -1,96 +1,7 @@
 import type { DashboardConfig } from '../dashboard/time-off-dashboard';
 
 export const dashboardConfig: DashboardConfig = {
-	records: [
-		{
-			id: 2800,
-			created: '05-05-2026',
-			type: 'Paid Leave',
-			startDate: '06-05-2026',
-			endDate: '06-05-2026',
-			hours: 4,
-		},
-		{
-			id: 2790,
-			created: '23-04-2026',
-			type: 'Paid Leave',
-			startDate: '23-04-2026',
-			endDate: '23-04-2026',
-			hours: 9,
-		},
-		{
-			id: 2754,
-			created: '27-03-2026',
-			type: 'Paid Leave',
-			startDate: '02-04-2026',
-			endDate: '02-04-2026',
-			hours: 9,
-		},
-		{
-			id: 2692,
-			created: '23-02-2026',
-			type: 'Paid Leave',
-			startDate: '27-02-2026',
-			endDate: '27-02-2026',
-			hours: 9,
-		},
-		{
-			id: 2661,
-			created: '04-02-2026',
-			type: 'Paid Leave',
-			startDate: '05-02-2026',
-			endDate: '05-02-2026',
-			hours: 9,
-		},
-		{
-			id: 2617,
-			created: '15-01-2026',
-			type: 'Paid Leave',
-			startDate: '16-01-2026',
-			endDate: '16-01-2026',
-			hours: 9,
-		},
-		{
-			id: 2609,
-			created: '29-12-2025',
-			type: 'Paid Leave',
-			startDate: '02-01-2026',
-			endDate: '02-01-2026',
-			hours: 9,
-		},
-		{
-			id: 2471,
-			created: '18-11-2025',
-			type: 'Paid Leave',
-			startDate: '17-11-2025',
-			endDate: '17-11-2025',
-			hours: 9,
-		},
-		{
-			id: 2436,
-			created: '12-11-2025',
-			type: 'Paid Leave',
-			startDate: '13-11-2025',
-			endDate: '13-11-2025',
-			hours: 4,
-		},
-		{
-			id: 2393,
-			created: '20-10-2025',
-			type: 'Paid Leave',
-			startDate: '27-10-2025',
-			endDate: '27-10-2025',
-			hours: 9,
-		},
-		{
-			id: 2263,
-			created: '12-08-2025',
-			type: 'Paid Leave',
-			startDate: '21-08-2025',
-			endDate: '21-08-2025',
-			hours: 9,
-		},
-	],
+	records: [],
 	employmentStartDate: new Date('2025-05-26'),
 	timeOffManagerLastUpdateDate: new Date('2026-04-20'),
 	monthlyAccrualRate: 1.25,
@@ -111,3 +22,10 @@ export const dashboardConfig: DashboardConfig = {
 		yearProjectionInfo: '#yearProjectionInfo',
 	},
 };
+
+export const kssEngineConfig = {
+	serviceId: '6a0b468fd52cb93c85848291',
+	type: 'service',
+	fallbackPath: './data/data.json',
+	fallbackOnly: false,
+} as const;

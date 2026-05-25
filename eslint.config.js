@@ -6,6 +6,7 @@ module.exports = tseslint.config(
 	{
 		ignores: [
 			'js/script.js',
+			'kss-engine/**',
 			'eslint.config.js',
 			'node_modules/**',
 			'scripts/dev-server.mjs',

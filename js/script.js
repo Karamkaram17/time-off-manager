@@ -6,96 +6,7 @@
 
   // src/config/dashboard-config.ts
   var dashboardConfig = {
-    records: [
-      {
-        id: 2800,
-        created: "05-05-2026",
-        type: "Paid Leave",
-        startDate: "06-05-2026",
-        endDate: "06-05-2026",
-        hours: 4
-      },
-      {
-        id: 2790,
-        created: "23-04-2026",
-        type: "Paid Leave",
-        startDate: "23-04-2026",
-        endDate: "23-04-2026",
-        hours: 9
-      },
-      {
-        id: 2754,
-        created: "27-03-2026",
-        type: "Paid Leave",
-        startDate: "02-04-2026",
-        endDate: "02-04-2026",
-        hours: 9
-      },
-      {
-        id: 2692,
-        created: "23-02-2026",
-        type: "Paid Leave",
-        startDate: "27-02-2026",
-        endDate: "27-02-2026",
-        hours: 9
-      },
-      {
-        id: 2661,
-        created: "04-02-2026",
-        type: "Paid Leave",
-        startDate: "05-02-2026",
-        endDate: "05-02-2026",
-        hours: 9
-      },
-      {
-        id: 2617,
-        created: "15-01-2026",
-        type: "Paid Leave",
-        startDate: "16-01-2026",
-        endDate: "16-01-2026",
-        hours: 9
-      },
-      {
-        id: 2609,
-        created: "29-12-2025",
-        type: "Paid Leave",
-        startDate: "02-01-2026",
-        endDate: "02-01-2026",
-        hours: 9
-      },
-      {
-        id: 2471,
-        created: "18-11-2025",
-        type: "Paid Leave",
-        startDate: "17-11-2025",
-        endDate: "17-11-2025",
-        hours: 9
-      },
-      {
-        id: 2436,
-        created: "12-11-2025",
-        type: "Paid Leave",
-        startDate: "13-11-2025",
-        endDate: "13-11-2025",
-        hours: 4
-      },
-      {
-        id: 2393,
-        created: "20-10-2025",
-        type: "Paid Leave",
-        startDate: "27-10-2025",
-        endDate: "27-10-2025",
-        hours: 9
-      },
-      {
-        id: 2263,
-        created: "12-08-2025",
-        type: "Paid Leave",
-        startDate: "21-08-2025",
-        endDate: "21-08-2025",
-        hours: 9
-      }
-    ],
+    records: [],
     employmentStartDate: /* @__PURE__ */ new Date("2025-05-26"),
     timeOffManagerLastUpdateDate: /* @__PURE__ */ new Date("2026-04-20"),
     monthlyAccrualRate: 1.25,
@@ -115,6 +26,12 @@
       remainingYear: "#remainingYear",
       yearProjectionInfo: "#yearProjectionInfo"
     }
+  };
+  var kssEngineConfig = {
+    serviceId: "6a0b468fd52cb93c85848291",
+    type: "service",
+    fallbackPath: "./data/data.json",
+    fallbackOnly: false
   };
 
   // src/constants/time.ts
@@ -15068,13 +14985,175 @@
     }
   };
 
+  // src/integrations/kss-engine.ts
+  function loadTimeOffData(config) {
+    const engine = getKssEngine();
+    return new Promise((resolve2, reject) => {
+      let settled = false;
+      const cleanupCallbacks = [];
+      const cleanup = () => {
+        cleanupCallbacks.forEach((callback2) => {
+          callback2();
+        });
+      };
+      const settle = (callback2) => {
+        return (value) => {
+          if (settled) {
+            return;
+          }
+          settled = true;
+          cleanup();
+          callback2(value);
+        };
+      };
+      cleanupCallbacks.push(
+        engine.onReady(
+          settle((payload) => {
+            resolve2(normalizeTimeOffPayload(payload));
+          })
+        )
+      );
+      cleanupCallbacks.push(
+        engine.error.subscribe((error) => {
+          if (error !== null) {
+            settle((nextError) => {
+              reject(nextError);
+            })(error);
+          }
+        })
+      );
+      engine.init(config);
+    });
+  }
+  function getKssEngine() {
+    const engine = window.KSS_ENGINE;
+    if (engine === void 0) {
+      throw new Error("KSS_ENGINE is not available. Load kss-engine.js before the app bundle.");
+    }
+    return engine;
+  }
+  function normalizeTimeOffPayload(payload) {
+    if (!isRecord(payload)) {
+      throw new Error("KSS_ENGINE returned an unexpected payload.");
+    }
+    const timeOffPayload = payload;
+    const rawRecords = getRawRecords(timeOffPayload);
+    if (!Array.isArray(rawRecords)) {
+      throw new Error("KSS time-off payload does not include a records array.");
+    }
+    const employmentStartDate = parseOptionalDate(timeOffPayload.data?.employmentStartDate) ?? parseOptionalDate(timeOffPayload.employmentStartDate);
+    const timeOffManagerLastUpdateDate = parseOptionalDate(timeOffPayload.data?.timeOffManagerLastUpdateDate) ?? parseOptionalDate(timeOffPayload.timeOffManagerLastUpdateDate) ?? parseOptionalDate(timeOffPayload.updatedAt) ?? parseOptionalDate(timeOffPayload.data?.updatedAt);
+    const monthlyAccrualRate = requireOptionalNumber(timeOffPayload.data?.monthlyAccrualRate, "monthlyAccrualRate") ?? requireOptionalNumber(timeOffPayload.monthlyAccrualRate, "monthlyAccrualRate");
+    return {
+      records: rawRecords.map((rawRecord) => normalizeRecord(rawRecord)),
+      ...employmentStartDate === void 0 ? {} : { employmentStartDate },
+      ...timeOffManagerLastUpdateDate === void 0 ? {} : { timeOffManagerLastUpdateDate },
+      ...monthlyAccrualRate === void 0 ? {} : { monthlyAccrualRate }
+    };
+  }
+  function getRawRecords(payload) {
+    if (Array.isArray(payload.data?.dataArr)) {
+      return payload.data.dataArr;
+    }
+    if (Array.isArray(payload.dataArr)) {
+      return payload.dataArr;
+    }
+    if (Array.isArray(payload.records)) {
+      return payload.records;
+    }
+    return void 0;
+  }
+  function normalizeRecord(record) {
+    if (!isRecord(record)) {
+      throw new Error("KSS time-off record is invalid.");
+    }
+    const rawRecord = record;
+    return {
+      id: requireNumber(rawRecord.id, "id"),
+      created: normalizeDateString(rawRecord.created, "created"),
+      type: normalizeString(rawRecord.type) || "Paid Leave",
+      startDate: normalizeDateString(rawRecord.startDate, "startDate"),
+      endDate: normalizeDateString(rawRecord.endDate, "endDate"),
+      hours: requireNumber(rawRecord.hours, "hours")
+    };
+  }
+  function normalizeDateString(value, fieldName) {
+    const stringValue = normalizeString(value);
+    if (stringValue === "") {
+      throw new Error(`KSS time-off record is missing ${fieldName}.`);
+    }
+    if (/^\d{2}-\d{2}-\d{4}$/.test(stringValue)) {
+      return stringValue;
+    }
+    const parsedDate = new Date(stringValue);
+    if (Number.isNaN(parsedDate.getTime())) {
+      throw new Error(`KSS time-off record has an invalid ${fieldName}: ${stringValue}`);
+    }
+    return formatDateForDashboard(parsedDate);
+  }
+  function parseOptionalDate(value) {
+    const stringValue = normalizeString(value);
+    if (stringValue === "") {
+      return void 0;
+    }
+    const parsedDate = new Date(stringValue);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return void 0;
+    }
+    return parsedDate;
+  }
+  function formatDateForDashboard(date) {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear());
+    return `${day}-${month}-${year}`;
+  }
+  function normalizeString(value) {
+    return typeof value === "string" ? value.trim() : "";
+  }
+  function requireNumber(value, fieldName) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+    throw new Error(`KSS time-off record has an invalid ${fieldName}.`);
+  }
+  function requireOptionalNumber(value, fieldName) {
+    if (value === void 0 || value === null) {
+      return void 0;
+    }
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+    throw new Error(`KSS time-off payload has an invalid ${fieldName}.`);
+  }
+  function isRecord(value) {
+    return value !== null && typeof value === "object";
+  }
+
   // src/main.ts
-  var dashboard = new TimeOffDashboard(dashboardConfig);
   var dashboardWindow = window;
+  var dashboard = null;
   dashboardWindow.clearFilters = () => {
-    dashboard.clearFilters();
+    dashboard?.clearFilters();
   };
-  dashboard.init();
+  async function bootstrap() {
+    let config = dashboardConfig;
+    try {
+      const remoteData = await loadTimeOffData(kssEngineConfig);
+      config = {
+        ...dashboardConfig,
+        records: remoteData.records,
+        employmentStartDate: remoteData.employmentStartDate ?? dashboardConfig.employmentStartDate,
+        timeOffManagerLastUpdateDate: remoteData.timeOffManagerLastUpdateDate ?? dashboardConfig.timeOffManagerLastUpdateDate,
+        monthlyAccrualRate: remoteData.monthlyAccrualRate ?? dashboardConfig.monthlyAccrualRate
+      };
+    } catch (error) {
+      console.error("Failed to load time-off data through KSS_ENGINE. Falling back to bundled records.", error);
+    }
+    dashboard = new TimeOffDashboard(config);
+    dashboard.init();
+  }
+  void bootstrap();
 })();
 /*! Bundled license information:
 
