@@ -42,6 +42,7 @@ type KssTimeOffPayload = {
 type KssTimeOffRecord = {
 	id: number;
 	created: string;
+	approved?: boolean | string | number | null;
 	type?: string;
 	startDate: string;
 	endDate: string;
@@ -175,6 +176,7 @@ function normalizeRecord(record: unknown): TimeOffRecord {
 	return {
 		id: requireNumber(rawRecord.id, 'id'),
 		created: normalizeDateString(rawRecord.created, 'created'),
+		approved: normalizeApprovedStatus(rawRecord.approved),
 		type: normalizeString(rawRecord.type) || 'Paid Leave',
 		startDate: normalizeDateString(rawRecord.startDate, 'startDate'),
 		endDate: normalizeDateString(rawRecord.endDate, 'endDate'),
@@ -248,6 +250,32 @@ function requireOptionalNumber(value: unknown, fieldName: string): number | unde
 	}
 
 	throw new Error(`KSS time-off payload has an invalid ${fieldName}.`);
+}
+
+function normalizeApprovedStatus(value: unknown): boolean {
+	if (value === undefined || value === null) {
+		return false;
+	}
+
+	if (typeof value === 'boolean') {
+		return value;
+	}
+
+	if (typeof value === 'number') {
+		return value !== 0;
+	}
+
+	if (typeof value === 'string') {
+		const normalizedValue = value.trim().toLowerCase();
+
+		if (normalizedValue === '') {
+			return false;
+		}
+
+		return ['true', '1', 'approved', 'yes'].includes(normalizedValue);
+	}
+
+	return false;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

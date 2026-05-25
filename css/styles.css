@@ -293,6 +293,16 @@ th[aria-sort="descending"] .table-sort-indicator {
 	color: #c4b5fd;
 }
 
+.badge-soft-approved {
+	background: rgba(16, 185, 129, 0.14);
+	color: #a7f3d0;
+}
+
+.badge-soft-pending {
+	background: rgba(251, 191, 36, 0.14);
+	color: #fde68a;
+}
+
 .badge-soft-workdays {
 	background: rgba(16, 185, 129, 0.14);
 	color: #a7f3d0;

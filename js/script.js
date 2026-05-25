@@ -14753,7 +14753,10 @@
     constructor(selectors) {
       __publicField(this, "elements");
       __publicField(this, "sortButtons");
-      __publicField(this, "sortState", null);
+      __publicField(this, "sortState", {
+        column: "created",
+        direction: "desc"
+      });
       this.elements = {
         filterMonth: queryRequiredElement(selectors.filterMonth),
         filterYear: queryRequiredElement(selectors.filterYear),
@@ -14795,7 +14798,7 @@
       if (sortedRecords.length === 0) {
         this.elements.tableBody.innerHTML = `
         <tr>
-          <td colspan="6" class="empty-state">No off days match the current filters.</td>
+					<td colspan="7" class="empty-state">No off days match the current filters.</td>
         </tr>
       `;
         return;
@@ -14912,6 +14915,7 @@
       <tr>
         <td>${String(record.id)}</td>
         <td>${record.created}</td>
+				<td><span class="badge rounded-pill px-3 py-2 fw-semibold ${record.approved ? "badge-soft-approved" : "badge-soft-pending"}">${record.approved ? "Approved" : "Pending"}</span></td>
         <td><span class="badge rounded-pill px-3 py-2 fw-semibold badge-soft-type">${record.type}</span></td>
         <td>${record.startDate}</td>
         <td>${record.endDate}</td>
@@ -15071,6 +15075,7 @@
     return {
       id: requireNumber(rawRecord.id, "id"),
       created: normalizeDateString(rawRecord.created, "created"),
+      approved: normalizeApprovedStatus(rawRecord.approved),
       type: normalizeString(rawRecord.type) || "Paid Leave",
       startDate: normalizeDateString(rawRecord.startDate, "startDate"),
       endDate: normalizeDateString(rawRecord.endDate, "endDate"),
@@ -15125,6 +15130,25 @@
       return value;
     }
     throw new Error(`KSS time-off payload has an invalid ${fieldName}.`);
+  }
+  function normalizeApprovedStatus(value) {
+    if (value === void 0 || value === null) {
+      return false;
+    }
+    if (typeof value === "boolean") {
+      return value;
+    }
+    if (typeof value === "number") {
+      return value !== 0;
+    }
+    if (typeof value === "string") {
+      const normalizedValue = value.trim().toLowerCase();
+      if (normalizedValue === "") {
+        return false;
+      }
+      return ["true", "1", "approved", "yes"].includes(normalizedValue);
+    }
+    return false;
   }
   function isRecord(value) {
     return value !== null && typeof value === "object";

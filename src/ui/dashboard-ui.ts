@@ -55,7 +55,10 @@ export type ProjectionSummary = {
 export class DashboardUI {
 	readonly elements: DashboardElements;
 	readonly sortButtons: SortButton[];
-	sortState: SortState = null;
+	sortState: SortState = {
+		column: 'created',
+		direction: 'desc',
+	};
 
 	constructor(selectors: SelectorMap) {
 		this.elements = {
@@ -105,7 +108,7 @@ export class DashboardUI {
 		if (sortedRecords.length === 0) {
 			this.elements.tableBody.innerHTML = `
         <tr>
-          <td colspan="6" class="empty-state">No off days match the current filters.</td>
+					<td colspan="7" class="empty-state">No off days match the current filters.</td>
         </tr>
       `;
 			return;
@@ -244,6 +247,7 @@ export class DashboardUI {
       <tr>
         <td>${String(record.id)}</td>
         <td>${record.created}</td>
+				<td><span class="badge rounded-pill px-3 py-2 fw-semibold ${record.approved ? 'badge-soft-approved' : 'badge-soft-pending'}">${record.approved ? 'Approved' : 'Pending'}</span></td>
         <td><span class="badge rounded-pill px-3 py-2 fw-semibold badge-soft-type">${record.type}</span></td>
         <td>${record.startDate}</td>
         <td>${record.endDate}</td>

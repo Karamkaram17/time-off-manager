@@ -1,6 +1,7 @@
 export type TimeOffRecord = {
 	id: number;
 	created: string;
+	approved: boolean;
 	type: string;
 	startDate: string;
 	endDate: string;
