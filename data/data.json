@@ -1,5 +1,5 @@
 {
-  "_dataFreshness": "Monday, 25 May 2026 16:00:00 UTC",
+  "_dataFreshness": "Wednesday, 27 May 2026 13:00:00 UTC",
   "serviceId": "6a0b468fd52cb93c85848291",
   "data": {
     "dataArr": [
@@ -101,15 +101,6 @@
         "hours": 4,
         "approved": true,
         "type": "Paid Leave"
-      },
-      {
-        "id": 2869,
-        "created": "2026-05-21T13:54:47+03:00",
-        "startDate": "2026-05-29T13:54:56+03:00",
-        "endDate": "2026-05-29T13:55:01+03:00",
-        "hours": 9,
-        "type": "Paid Leave",
-        "approved": false
       }
     ]
   }
